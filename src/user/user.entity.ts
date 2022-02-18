@@ -1,3 +1,4 @@
+import { ApiPropertyOptional } from "@nestjs/swagger";
 import { CrudValidationGroups } from "@nestjsx/crud";
 import { ApiProperty } from "@nestjsx/crud/lib/crud";
 import { Exclude } from "class-transformer";
@@ -28,7 +29,9 @@ export class UserEntity {
     @Column({ unique: true })
     email: string
 
-    @ApiProperty()
+    @ApiPropertyOptional({
+        description: 'useful only on update, undefined by default'
+    })
     @IsOptional({ groups: [UPDATE] })
     @IsDefined({ groups: [CREATE] })
     @MinLength(8)
@@ -40,7 +43,7 @@ export class UserEntity {
     @ApiProperty()
     @IsOptional({ always: true })
     @CreateDateColumn()
-    createdAt: Date
+    readonly createdAt: Date
 
     constructor(name: string, email: string, password: string) {
         this.name = name

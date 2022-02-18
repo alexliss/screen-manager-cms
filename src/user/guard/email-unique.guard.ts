@@ -1,7 +1,7 @@
 import { BadRequestException, CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common';
 import { isEmail } from 'class-validator';
+import { EmailIsUsedException } from 'src/auth/exception/email-is-used.exception';
 import { UserService } from 'src/user/user.service';
-import { EmailIsUsedException } from '../exception/email-is-used.exception';
 
 @Injectable()
 export class EmailUniqueGuard implements CanActivate {
@@ -9,7 +9,7 @@ export class EmailUniqueGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const email: string = context.switchToHttp().getRequest().body.email
     if (!email) {
-      return false;
+      return true;
     }
     if (!isEmail(email)) {
       throw new BadRequestException()
@@ -18,7 +18,7 @@ export class EmailUniqueGuard implements CanActivate {
     if (!user) {
       return true
     } else {
-      throw new EmailIsUsedException()
+      return false
     }
   }
 }

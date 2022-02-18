@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common';
+import { NameIsUsedException } from 'src/auth/exception/name-is-used.exception';
 import { UserService } from 'src/user/user.service';
-import { NameIsUsedException } from '../exception/name-is-used.exception';
 
 @Injectable()
 export class NameUniqueGuard implements CanActivate {
@@ -8,7 +8,7 @@ export class NameUniqueGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const name: string = context.switchToHttp().getRequest().body.name
     if (!name) {
-      return false
+      return true
     }
     const user = await this.userService.findByName(name)
     if (!user) {
@@ -18,3 +18,4 @@ export class NameUniqueGuard implements CanActivate {
     }
   }
 }
+
