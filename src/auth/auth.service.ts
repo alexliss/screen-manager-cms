@@ -23,6 +23,7 @@ export class AuthService {
 
     private createToken(user: UserEntity): string {
         const payload = new PayloadDto(user.id);
+        console.log(payload)
         return this.jwtService.sign( { payload } )
     }
 }

@@ -1,13 +1,14 @@
 import { ApiException } from '@nanogiants/nestjs-swagger-api-exception-decorator';
-import { Body, Controller, Delete, Get, Patch, Res, UnauthorizedException, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, UnauthorizedException, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Crud, CrudAuth, CrudController } from '@nestjsx/crud';
+import { EmailUniqueGuard } from 'src/auth/guard/email-unique.guard';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { NameUniqueGuard } from 'src/auth/guard/name-unique.guard';
 import { PasswordHashingInterceptor } from 'src/auth/password-hashing.interceptor';
 import { User } from 'src/auth/user.decorator';
-import { UserUpdateDtoRequest } from './dto/user-update.dto.request';
-import { EmailUniqueGuard } from './guard/email-unique.guard';
-import { NameUniqueGuard } from './guard/name-unique.guard';
+import { UserResponseDto } from './dto/user-response.dto';
+import { UserRequestDto } from './dto/user-request.dto';
 import { UserEntity } from './user.entity';
 import { UserService } from './user.service';
 
@@ -19,6 +20,10 @@ import { UserService } from './user.service';
   model: {
     type: UserEntity,
   },
+  dto: {},
+  serialize: {
+    'get': UserResponseDto
+  },
   params: {
     id: {
       field: 'id',
@@ -27,17 +32,12 @@ import { UserService } from './user.service';
     },
   },
   routes: {
-    exclude: ['createManyBase', 'createOneBase', 'replaceOneBase', 'updateOneBase', 'deleteOneBase'],
-    getOneBase: {
-      interceptors: [],
-      decorators: [],
-    }
+    only: ['getManyBase', 'getOneBase']
   }
-}
-)
+})
 @CrudAuth({
   property: 'user',
-  filter: (user: UserEntity) => ({
+  persist: (user: UserEntity) => ({
     id: user.id
   })
 })
@@ -48,8 +48,8 @@ export class UserController implements CrudController<UserEntity> {
   @ApiOkResponse({type: UserEntity})
   @ApiException(() => UnauthorizedException)
   @Get('me')
-  async getByPayload(@User() user: UserEntity): Promise<UserEntity> {
-    return user;
+  async getByPayload(@User() user: UserEntity): Promise<UserResponseDto> {
+    return new UserResponseDto(user);
   }
 
   @UseGuards(EmailUniqueGuard, NameUniqueGuard)
@@ -59,7 +59,7 @@ export class UserController implements CrudController<UserEntity> {
   @Patch()
   async update(
     @User() user: UserEntity, 
-    @Body() newData: UserUpdateDtoRequest) {
+    @Body() newData: UserRequestDto): Promise<UserResponseDto> {
     return this.service.update(user, newData)
   }
 

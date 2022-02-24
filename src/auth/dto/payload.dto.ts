@@ -1,3 +1,3 @@
 export class PayloadDto {
-    constructor(readonly userId: string) {}
+    constructor(readonly sub: string) {}
 }

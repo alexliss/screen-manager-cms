@@ -7,8 +7,9 @@ export class NameUniqueGuard implements CanActivate {
   constructor(@Inject(UserService) private readonly userService) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const name: string = context.switchToHttp().getRequest().body.name
+    console.log()
     if (!name) {
-      return false
+      return true
     }
     const user = await this.userService.findByName(name)
     if (!user) {

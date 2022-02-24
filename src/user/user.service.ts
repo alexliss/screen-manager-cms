@@ -1,10 +1,10 @@
-import { HttpCode, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
-import { Response } from 'express';
 import { RegisterDtoRequest } from 'src/auth/dto/register.dto.request';
 import { Repository } from 'typeorm';
-import { UserUpdateDtoRequest } from './dto/user-update.dto.request';
+import { UserResponseDto } from './dto/user-response.dto';
+import { UserRequestDto } from './dto/user-request.dto';
 import { UserEntity } from './user.entity';
 
 @Injectable()
@@ -36,7 +36,7 @@ export class UserService extends TypeOrmCrudService<UserEntity> {
         })
     }
 
-    async update(user: UserEntity, data: UserUpdateDtoRequest) {
+    async update(user: UserEntity, data: UserRequestDto): Promise<UserResponseDto> {
         if (data.email != undefined) {
             await this.repo.update(user.id, {email: data.email})
         }
@@ -48,7 +48,7 @@ export class UserService extends TypeOrmCrudService<UserEntity> {
         }
         user = await this.repo.findOne(user.id)
         user.password = undefined
-        return user
+        return new UserResponseDto(user)
     } 
 
     async delete(user: UserEntity) {
