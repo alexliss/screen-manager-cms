@@ -1,4 +1,4 @@
-import { PlaylistEntity } from "src/playlist-content/playlist.entity";
+import { PlaylistEntity } from "./playlist.entity";
 import { Column, Entity, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { ContentEntity } from "./content.entity";
 

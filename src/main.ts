@@ -18,6 +18,7 @@ async function bootstrap() {
     .addTag('user')
     .addTag('event')
     .addTag('screen')
+    .addTag('playlist-content')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

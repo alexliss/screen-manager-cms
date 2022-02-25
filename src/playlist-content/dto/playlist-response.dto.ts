@@ -1,10 +1,19 @@
-import { PlaylistEntity } from "../playlist.entity"
+import { ApiProperty } from "@nestjsx/crud/lib/crud"
+import { PlaylistEntity } from "../entity/playlist.entity"
 import { ContentResponseDto } from "./content-response.dto"
 
 export class PlaylistResponseDto {
+    
+    @ApiProperty()
     id: string
+    
+    @ApiProperty()
     name: string
+    
+    @ApiProperty()
     userId: string
+
+    @ApiProperty({ type: () => [ContentResponseDto]})
     content: ContentResponseDto[]
 
     constructor(playlist: PlaylistEntity) {

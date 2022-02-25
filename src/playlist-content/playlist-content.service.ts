@@ -1,14 +1,14 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/user/user.entity';
 import { Repository } from 'typeorm';
-import { ContentEntity } from './content.entity';
+import { ContentEntity } from './entity/content.entity';
 import { ContentRequestDto } from './dto/content-request.dto';
 import { PlaylistRequestDto } from './dto/playlist-request.dto';
 import { ManyPlaylistsResponseDto } from './dto/many-playlists-response.dto';
 import { PlaylistResponseDto } from './dto/playlist-response.dto';
-import { PlaylistContentEntity } from './playlist-content.entity';
-import { PlaylistEntity } from './playlist.entity';
+import { PlaylistContentEntity } from './entity/playlist-content.entity';
+import { PlaylistEntity } from './entity/playlist.entity';
 import { PlaylistContentRequestDto } from './dto/playlist-content-request.dto';
 
 @Injectable()
@@ -60,18 +60,67 @@ export class PlaylistContentService {
         return new PlaylistResponseDto(playlist)
     }
 
-    /*async changeContentInPlaylist(
+    async changeContentInPlaylist(
         playlistId: string, 
         contentOrder: number, 
         data: PlaylistContentRequestDto
     ): Promise<PlaylistResponseDto> {
         let playlist = await this.getPlaylistWithContent(playlistId)
-        const isRequestCorrect = playlist && playlist.content[contentOrder]  
-            (playlist.content.length >= data.order)
-        if (!playlist || !playlist.content[contentOrder] || ())
-        // все как святой греча сказал, сплитом делим на 2 и вставляем, у второй половины ордер+1, записываем в бд, возвращаем плейлист
-        // можно поменять продолжительность
-    }*/
+        if (!playlist) {
+            throw new NotFoundException('playlist not found')
+        }
+
+        if (!playlist.content[contentOrder]) {
+            throw new NotFoundException('content not found')
+        }
+
+        if (data.link) {
+            playlist.content[contentOrder].content = await this.getContent(data.link)
+            this.playlistContentRepo.save(playlist.content[contentOrder])
+        }
+
+        if (data.duration) {
+            if (data.duration >= 0) {
+                playlist.content[contentOrder].duration = data.duration
+            } else {
+                throw new BadRequestException
+            }
+        }
+
+        if (data.order) {
+            if (data.order < 0) {
+                throw new BadRequestException
+            }
+            if (data.order > contentOrder) {
+                const movingContent = playlist.content.splice(contentOrder, 1)
+                if (data.order >= playlist.content.length) {
+                    movingContent[0].order = playlist.content.length - 1
+                } else {
+                    movingContent[0].order = data.order
+                }
+                for (let index = contentOrder - 1; index < movingContent[0].order; index++) {
+                    playlist.content[index].order--;
+                }
+                playlist.content.push(movingContent[0])
+            }
+
+            if (data.order < contentOrder) {
+                const movingContent = playlist.content.splice(contentOrder, 1)
+                movingContent[0].order = data.order
+                for (let index = contentOrder - 1; index > data.order; index--) {
+                    playlist.content[index].order++;
+                }
+                playlist.content.push(movingContent[0])
+            }
+
+        }
+
+        playlist = await this.playlistRepo.save(playlist)
+        playlist.content = this.playlistContentSort(playlist.content)
+
+        return new PlaylistResponseDto(playlist)
+    
+    }
 
     async deletePlaylist(id: string) {
         this.playlistRepo.delete(id)
@@ -88,7 +137,7 @@ export class PlaylistContentService {
         for (let index = contentOrder - 1; index < playlist.content.length; index++) {
             playlist.content[index].order--;
         }
-
+        
         this.playlistContentRepo.save(playlist.content)
     }
 
@@ -124,7 +173,7 @@ export class PlaylistContentService {
         return playlist
     }
 
-    private playlistContentSort(playlistContent: PlaylistContentEntity[]) {
+    private playlistContentSort(playlistContent: PlaylistContentEntity[]): PlaylistContentEntity[] {
         return playlistContent.sort((a, b) => (a.order < b.order ? -1 : a.order > b.order ? 1 : 0))
     }
 }
