@@ -20,8 +20,9 @@ export class PlaylistResponseDto {
         this.id = playlist.id
         this.name = playlist.name
         this.userId = playlist.userId
+        this.content = []
         playlist.content.map(element => {
-            this.content.push(new ContentResponseDto())
+            this.content.push(new ContentResponseDto(element))
         })
     }
 }

@@ -6,6 +6,7 @@ import { UserPropertyGuard } from 'src/user-property.guard';
 import { ScreenRequestDto } from './dto/screen-request.dto';
 import { ScreenResponseDto } from './dto/screen-response.dto';
 import { ScreenEntity } from './screen.entity';
+import { ScreenService } from './screen.service';
 
 @ApiTags('screen')
 @UseGuards(JwtAuthGuard)
@@ -28,8 +29,7 @@ import { ScreenEntity } from './screen.entity';
     serialize: {
         create: ScreenResponseDto,
         update: ScreenResponseDto,
-        get: ScreenResponseDto,
-        getMany: ScreenResponseDto
+        get: ScreenResponseDto
     },
     routes: {
         exclude: ['replaceOneBase', 'recoverOneBase', 'createManyBase'],
@@ -48,4 +48,6 @@ import { ScreenEntity } from './screen.entity';
     })
 })
 @Controller('screen')
-export class ScreenController {}
+export class ScreenController {
+    constructor(public service: ScreenService) {}
+}

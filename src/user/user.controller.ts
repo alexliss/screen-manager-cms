@@ -47,8 +47,9 @@ export class UserController implements CrudController<UserEntity> {
 
   @ApiOkResponse({type: UserEntity})
   @ApiException(() => UnauthorizedException)
+  @ApiOkResponse({type: UserResponseDto})
   @Get('me')
-  async getByPayload(@User() user: UserEntity): Promise<UserResponseDto> {
+  getByPayload(@User() user: UserEntity): UserResponseDto {
     return new UserResponseDto(user);
   }
 

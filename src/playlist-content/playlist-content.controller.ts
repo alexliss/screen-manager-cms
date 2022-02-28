@@ -10,10 +10,11 @@ import { PlaylistResponseDto } from './dto/playlist-response.dto';
 import { PlaylistContentService } from './playlist-content.service';
 import { PlaylistEntity } from './entity/playlist.entity';
 import { PlaylistContentRequestDto } from './dto/playlist-content-request.dto';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { ApiException } from '@nanogiants/nestjs-swagger-api-exception-decorator';
 
 @ApiTags('playlist-content')
+@ApiBearerAuth('user-token')
 @Controller()
 @UseGuards(JwtAuthGuard)
 export class PlaylistContentController {
