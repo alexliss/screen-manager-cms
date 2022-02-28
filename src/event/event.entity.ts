@@ -16,7 +16,7 @@ export class EventEntity extends UserProperty {
     @IsOptional({ groups: [UPDATE] })
     @IsDefined({ groups: [CREATE]})
     @Column()
-    name:string
+    name: string
 
     @CreateDateColumn()
     createdAt: Date

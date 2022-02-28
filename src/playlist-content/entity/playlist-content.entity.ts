@@ -3,7 +3,6 @@ import { Column, Entity, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn, Uniqu
 import { ContentEntity } from "./content.entity";
 
 @Entity('playlistContent')
-@Unique(['playlist', 'order'])
 export class PlaylistContentEntity {
 
     @PrimaryGeneratedColumn('uuid')

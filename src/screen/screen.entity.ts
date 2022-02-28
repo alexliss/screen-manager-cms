@@ -1,5 +1,5 @@
 import { EventEntity } from "src/event/event.entity";
-import { PlaylistEntity } from "src/playlist-content/playlist.entity";
+import { PlaylistEntity } from "src/playlist-content/entity/playlist.entity";
 import { UserProperty } from "src/user-property";
 import { UserEntity } from "src/user/user.entity";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
@@ -16,7 +16,7 @@ export class ScreenEntity extends UserProperty {
     @Column()
     eventId: string
 
-    @Column()
+    @Column({nullable: true})
     playlistId: string
 
     @ManyToOne(() => UserEntity, user => user.screens, {
@@ -31,4 +31,5 @@ export class ScreenEntity extends UserProperty {
 
     @ManyToOne(() => PlaylistEntity, { eager: true })
     playlist: PlaylistEntity
+
 }

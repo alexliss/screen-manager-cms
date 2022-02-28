@@ -44,10 +44,10 @@ export class PlaylistContentService {
             where: {
                 userId: user.id
             },
-            relations: ["playlistContent"]
+            relations: ["content"]
         })
-        playlists.forEach(element => {
-            element.content = this.playlistContentSort(element.content)
+        playlists.forEach(playlist => {
+            playlist.content = this.playlistContentSort(playlist.content)
         });
 
         return new ManyPlaylistsResponseDto(playlists)
@@ -160,7 +160,7 @@ export class PlaylistContentService {
 
     private async getPlaylistWithContent(id: string): Promise<PlaylistEntity> {
         const playlist = await this.playlistRepo.findOne(id, {
-            relations: ['playlistContent']
+            relations: ['content']
         })
         if (!playlist) {
             throw new BadRequestException('playlist not found')
@@ -173,7 +173,7 @@ export class PlaylistContentService {
         return playlist
     }
 
-    private playlistContentSort(playlistContent: PlaylistContentEntity[]): PlaylistContentEntity[] {
-        return playlistContent.sort((a, b) => (a.order < b.order ? -1 : a.order > b.order ? 1 : 0))
+    private playlistContentSort(content: PlaylistContentEntity[]): PlaylistContentEntity[] {
+        return content.sort((a, b) => (a.order < b.order ? -1 : a.order > b.order ? 1 : 0))
     }
 }

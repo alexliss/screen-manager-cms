@@ -1,9 +1,8 @@
-import { UserProperty } from "src/user-property";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { PlaylistContentEntity } from "./playlist-content.entity";
 
 @Entity('content')
-export class ContentEntity extends UserProperty {
+export class ContentEntity {
     
     @PrimaryGeneratedColumn('uuid')
     id: string
@@ -17,7 +16,6 @@ export class ContentEntity extends UserProperty {
     playlistContent: PlaylistContentEntity[]
 
     constructor(link: string) {
-        super()
         this.link = link
     }
 }

@@ -1,5 +1,5 @@
 import { EventEntity } from "src/event/event.entity";
-import { PlaylistEntity } from "src/playlist-content/playlist.entity";
+import { PlaylistEntity } from "src/playlist-content/entity/playlist.entity";
 import { ScreenEntity } from "src/screen/screen.entity";
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
