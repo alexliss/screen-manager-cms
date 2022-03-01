@@ -55,7 +55,7 @@ export class UserController implements CrudController<UserEntity> {
 
   @UseGuards(EmailUniqueGuard, NameUniqueGuard)
   @UseInterceptors(PasswordHashingInterceptor)
-  @ApiOkResponse({type: UserEntity})
+  @ApiOkResponse({type: UserResponseDto})
   @ApiException(() => UnauthorizedException)
   @Patch()
   async update(

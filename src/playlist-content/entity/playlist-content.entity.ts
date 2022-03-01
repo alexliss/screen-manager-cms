@@ -11,14 +11,13 @@ export class PlaylistContentEntity {
     @Column()
     contentId: string
 
-    @Column()
+    @PrimaryColumn()
     playlistId: string
 
     // сделать каскадное сохранение
     
     @ManyToOne(() => PlaylistEntity, playlist => playlist.content, {
-        onDelete: "CASCADE",
-        primary: true
+        onDelete: "CASCADE"
     })
     playlist: PlaylistEntity
 

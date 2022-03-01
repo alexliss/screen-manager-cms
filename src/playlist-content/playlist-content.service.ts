@@ -31,7 +31,6 @@ export class PlaylistContentService {
         playlist.content.push(newContent)
         await this.contentRepo.save(content)
         await this.playlistContentRepo.save(newContent)
-        playlist = await this.playlistRepo.save(playlist)
         return new PlaylistResponseDto(playlist)
     }
 
@@ -65,23 +64,20 @@ export class PlaylistContentService {
         contentOrder: number, 
         data: PlaylistContentRequestDto
     ): Promise<PlaylistResponseDto> {
-        let playlist = await this.getPlaylistWithContent(playlistId)
-        if (!playlist) {
-            throw new NotFoundException('playlist not found')
-        }
-
-        if (!playlist.content[contentOrder]) {
+        const playlist = await this.getPlaylistWithContent(playlistId)
+        let { content } = playlist;
+        if (!content[contentOrder]) {
             throw new NotFoundException('content not found')
         }
 
         if (data.link) {
-            playlist.content[contentOrder].content = await this.getContent(data.link)
-            this.playlistContentRepo.save(playlist.content[contentOrder])
+            content[contentOrder].content = await this.getContent(data.link)
+            this.playlistContentRepo.save(content[contentOrder])
         }
 
         if (data.duration) {
             if (data.duration >= 0) {
-                playlist.content[contentOrder].duration = data.duration
+                content[contentOrder].duration = data.duration
             } else {
                 throw new BadRequestException
             }
@@ -92,31 +88,32 @@ export class PlaylistContentService {
                 throw new BadRequestException
             }
             if (data.order > contentOrder) {
-                const movingContent = playlist.content.splice(contentOrder, 1)
-                if (data.order >= playlist.content.length) {
-                    movingContent[0].order = playlist.content.length - 1
+                const movingContent = content.splice(contentOrder, 1)
+                if (data.order >= content.length) {
+                    console.log(movingContent)
+                    movingContent[0].order = content.length
+                    console.log(movingContent)
                 } else {
                     movingContent[0].order = data.order
                 }
-                for (let index = contentOrder - 1; index < movingContent[0].order; index++) {
-                    playlist.content[index].order--;
+                for (let index = contentOrder; index < movingContent[0].order; index++) {
+                    console.log(content[index])
+                    content[index].order--;
                 }
-                playlist.content.push(movingContent[0])
-            }
-
-            if (data.order < contentOrder) {
-                const movingContent = playlist.content.splice(contentOrder, 1)
+                content.push(movingContent[0])
+            } else if (data.order < contentOrder) {
+                const movingContent = content.splice(contentOrder, 1)
                 movingContent[0].order = data.order
                 for (let index = contentOrder - 1; index > data.order; index--) {
-                    playlist.content[index].order++;
+                    content[index].order++;
                 }
-                playlist.content.push(movingContent[0])
+                content.push(movingContent[0])
             }
 
         }
-
-        playlist = await this.playlistRepo.save(playlist)
-        playlist.content = this.playlistContentSort(playlist.content)
+        console.log(content)
+        content = await this.playlistContentRepo.save(content)
+        playlist.content = this.playlistContentSort(content)
 
         return new PlaylistResponseDto(playlist)
     
@@ -127,18 +124,22 @@ export class PlaylistContentService {
     } 
 
     async deleteContentFromPlaylist(playlistId: string, contentOrder: number) {
-        let playlist = await this.getPlaylistWithContent(playlistId)
-        const isDataValid = playlist.content && playlist.content.length && playlist.content[contentOrder]
+        const playlist = await this.getPlaylistWithContent(playlistId)
+        const { content } = playlist
+        const isDataValid = playlist && content && content.length && content[contentOrder]
         if (!isDataValid) {
             throw new BadRequestException
         }
-        this.playlistContentRepo.delete(playlist.content[contentOrder])
-        playlist.content.splice(contentOrder, 1)
-        for (let index = contentOrder - 1; index < playlist.content.length; index++) {
-            playlist.content[index].order--;
+        this.playlistContentRepo.delete(content[contentOrder])
+        content.splice(contentOrder, 1)
+        for (let index = contentOrder; index < content.length; index++) {
+            content[index].order--;
         }
         
-        this.playlistContentRepo.save(playlist.content)
+        await this.playlistContentRepo.save(content)
+        playlist.content = content
+
+        return new PlaylistResponseDto(playlist)
     }
 
     private async getContent(link: string): Promise<ContentEntity> {

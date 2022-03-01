@@ -22,7 +22,6 @@ export class PlaylistEntity extends UserProperty {
     screens: ScreenEntity[]
 
     @OneToMany(() => PlaylistContentEntity, content => content.playlist, {
-        cascade: true,
         eager: true
     })
     content: PlaylistContentEntity[]
