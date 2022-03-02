@@ -1,3 +1,4 @@
+import { Exclude } from "class-transformer";
 import { EventEntity } from "src/event/event.entity";
 import { PlaylistEntity } from "src/playlist-content/entity/playlist.entity";
 import { ScreenEntity } from "src/screen/screen.entity";
@@ -16,6 +17,7 @@ export class UserEntity {
     email: string
 
     @Column()
+    @Exclude()
     password: string
 
     @CreateDateColumn()

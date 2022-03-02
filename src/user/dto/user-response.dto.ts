@@ -15,10 +15,12 @@ export class UserResponseDto {
     createdAt: Date
 
     constructor(user: UserEntity) {
-        this.id = user.id
-        this.name = user.name
-        this.email = user.email
-        this.createdAt = user.createdAt
+        if (user) {
+            this.id = user.id
+            this.name = user.name
+            this.email = user.email
+            this.createdAt = user.createdAt
+        }
     }
 
 }

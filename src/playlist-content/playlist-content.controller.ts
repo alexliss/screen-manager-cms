@@ -83,7 +83,7 @@ export class PlaylistContentController {
     @ApiException(() => [UnauthorizedException, BadRequestException, NotFoundException]) 
     @Delete('playlist/:id')
     async deletePlaylist(@Param('id', ParseUUIDPipe) id: string) {
-        await this.deletePlaylist(id)
+        await this.service.deletePlaylist(id)
     }
 
     @UseGuards(new UserPropertyGuard(PlaylistEntity))
@@ -92,8 +92,8 @@ export class PlaylistContentController {
     async deleteContentFromPlaylist(
         @Param('id', ParseUUIDPipe) playlistId: string,
         @Param('contentOrder') contentOrder: number
-    ) {
-        await this.service.deleteContentFromPlaylist(playlistId, contentOrder)
+    ): Promise<PlaylistResponseDto> {
+        return await this.service.deleteContentFromPlaylist(playlistId, contentOrder)
     }
     
 }

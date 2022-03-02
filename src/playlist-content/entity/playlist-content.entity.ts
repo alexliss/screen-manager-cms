@@ -1,5 +1,5 @@
 import { PlaylistEntity } from "./playlist.entity";
-import { Column, Entity, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 import { ContentEntity } from "./content.entity";
 
 @Entity('playlistContent')
@@ -11,7 +11,7 @@ export class PlaylistContentEntity {
     @Column()
     contentId: string
 
-    @PrimaryColumn()
+    @Column()
     playlistId: string
 
     // сделать каскадное сохранение
@@ -25,7 +25,7 @@ export class PlaylistContentEntity {
     @ManyToOne(() => ContentEntity)
     content: ContentEntity
 
-    @PrimaryColumn({ type: 'integer' })
+    @Column({ type: 'integer' })
     order: number
 
     @Column()

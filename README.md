@@ -5,7 +5,7 @@
 
 ## Запуск
 1. Склонировать этот репозиторий `https://github.com/alexliss/screen-manager-cms`
-2. Переименовать config.example.ts в config.ts и внести нужные данные
+2. Переименовать ormconfig.example.env в ormconfig.env и внести нужные данные (в docker-compose тоже)
 3. Запустить!
 
 ## Интерфейс

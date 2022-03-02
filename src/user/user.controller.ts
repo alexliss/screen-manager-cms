@@ -20,7 +20,6 @@ import { UserService } from './user.service';
   model: {
     type: UserEntity,
   },
-  dto: {},
   serialize: {
     'get': UserResponseDto
   },
