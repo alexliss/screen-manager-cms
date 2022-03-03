@@ -17,8 +17,5 @@ export class UserRequestDto {
 
     @ApiPropertyOptional()
     @IsOptional()
-    @IsString()
-    @MinLength(8)
-    @MaxLength(16)
     password: string
 }

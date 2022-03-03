@@ -37,17 +37,12 @@ export class UserService extends TypeOrmCrudService<UserEntity> {
     }
 
     async update(user: UserEntity, data: UserRequestDto): Promise<UserResponseDto> {
-        if (data.email != undefined) {
-            await this.repo.update(user.id, {email: data.email})
-        }
-        if (data.name != undefined) {
-            await this.repo.update(user.id, {name: data.name})
-        }
-        if (data.password != undefined) {
-            await this.repo.update(user.id, {password: data.password})
-        }
+        Promise.all([
+            this.repo.update(user.id, {email: data.email}),
+            this.repo.update(user.id, {name: data.name}),
+            this.repo.update(user.id, {password: data.password})
+        ]).catch
         user = await this.repo.findOne(user.id)
-        user.password = undefined
         return new UserResponseDto(user)
     } 
 
