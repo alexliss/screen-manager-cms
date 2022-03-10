@@ -13,7 +13,7 @@ import { LocalStrategy } from './local.strategy';
   providers: [AuthService, JwtStrategy, LocalStrategy],
   imports: [
     ConfigModule.forRoot({
-      envFilePath: ["ormconfig.env"]
+      envFilePath: ["auth.env"]
     }),
     UserModule,
     PassportModule,

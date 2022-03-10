@@ -1,5 +1,5 @@
 import { PlaylistEntity } from "./playlist.entity";
-import { Column, Entity, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { ContentEntity } from "./content.entity";
 
 @Entity('playlistContent')
@@ -22,7 +22,9 @@ export class PlaylistContentEntity {
     playlist: PlaylistEntity
 
     // то же самое
-    @ManyToOne(() => ContentEntity)
+    @ManyToOne(() => ContentEntity, {
+        eager: true
+    })
     content: ContentEntity
 
     @Column({ type: 'integer' })
