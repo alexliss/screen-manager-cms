@@ -1,11 +1,11 @@
 import { Inject, UnauthorizedException } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
+import { passportJwtSecret } from "jwks-rsa";
 import { ExtractJwt, Strategy } from "passport-jwt";
 import { UserService } from "src/user/user.service";
 import { PayloadDto } from "./payload.dto";
-import { passportJwtSecret } from 'jwks-rsa';
 
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class NoExistenceCheckJwtStrategy extends PassportStrategy(Strategy, 'jwt-no-check') {
     constructor(@Inject(UserService) private readonly userService) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -27,10 +27,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         const payloadData = new PayloadDto(req);
         if (!payloadData.id)
             throw new UnauthorizedException()
-        const user = await this.userService.repo.findOne(payloadData.id)
-        if (!user) {
-            throw new UnauthorizedException()
-        }
-        return user;
+        return payloadData;
     }
 }

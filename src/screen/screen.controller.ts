@@ -1,7 +1,7 @@
 import { Controller, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Crud, CrudAuth } from '@nestjsx/crud';
-import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UserPropertyGuard } from 'src/user-property.guard';
 import { ScreenRequestDto } from './dto/screen-request.dto';
 import { ScreenResponseDto } from './dto/screen-response.dto';

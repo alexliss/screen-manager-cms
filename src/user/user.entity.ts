@@ -1,13 +1,12 @@
-import { Exclude } from "class-transformer";
 import { EventEntity } from "src/event/event.entity";
 import { PlaylistEntity } from "src/playlist-content/entity/playlist.entity";
 import { ScreenEntity } from "src/screen/screen.entity";
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryColumn } from "typeorm";
 
 @Entity('users')
 export class UserEntity {
 
-    @PrimaryGeneratedColumn('uuid')
+    @PrimaryColumn()
     id: string
 
     @Column({ unique: true })
@@ -15,10 +14,6 @@ export class UserEntity {
 
     @Column({ unique: true })
     email: string
-
-    @Column()
-    @Exclude()
-    password: string
 
     @CreateDateColumn()
     readonly createdAt: Date
@@ -32,9 +27,9 @@ export class UserEntity {
     @OneToMany(() => PlaylistEntity, playlist => playlist.user)
     playlists: PlaylistEntity[]
 
-    constructor(name: string, email: string, password: string) {
+    constructor(id: string, name: string, email: string) {
+        this.id = id
         this.name = name
         this.email = email
-        this.password = password
     }
 }
