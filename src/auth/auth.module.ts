@@ -14,8 +14,7 @@ import { NoExistenceCheckJwtStrategy } from './no-existence-check-jwt.strategy';
       envFilePath: ["auth.env"]
     }),
     UserModule,
-    PassportModule,
-    UserModule,
+    PassportModule
     ]
 })
 export class AuthModule { }

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/user/user.entity';
 import { Repository } from 'typeorm';
@@ -10,13 +10,15 @@ import { PlaylistResponseDto } from './dto/playlist-response.dto';
 import { PlaylistContentEntity } from './entity/playlist-content.entity';
 import { PlaylistEntity } from './entity/playlist.entity';
 import { PlaylistContentRequestDto } from './dto/playlist-content-request.dto';
+import { BucketService } from 'src/bucket/bucket.service';
 
 @Injectable()
 export class PlaylistContentService {
     constructor(
         @InjectRepository(PlaylistEntity) private readonly playlistRepo: Repository<PlaylistEntity>,
         @InjectRepository(ContentEntity) private readonly contentRepo: Repository<ContentEntity>,
-        @InjectRepository(PlaylistContentEntity) private readonly playlistContentRepo: Repository<PlaylistContentEntity>
+        @InjectRepository(PlaylistContentEntity) private readonly playlistContentRepo: Repository<PlaylistContentEntity>,
+        @Inject(BucketService) private readonly bucketService: BucketService
     ) {}
 
     async createPlaylist(user: UserEntity, data: PlaylistRequestDto) {
@@ -24,13 +26,18 @@ export class PlaylistContentService {
         return new PlaylistResponseDto(playlist)
     }
 
-    async addContentInPlaylist(playlistId: string, data: ContentRequestDto): Promise<PlaylistResponseDto> {
+    async addContentInPlaylist(
+        playlistId: string, 
+        data: ContentRequestDto, 
+        file: Express.Multer.File
+    ): Promise<PlaylistResponseDto> {
         let playlist = await this.getPlaylistWithContent(playlistId)
-        const content = await this.getContent(data.link)
+        const content = await this.createContent(file)
+        console.log(data)
         const newContent = new PlaylistContentEntity(content, playlist, data.duration, playlist.content.length)
         playlist.content.push(newContent)
-        await this.contentRepo.save(content)
         await this.playlistContentRepo.save(newContent)
+        console.log(data)
         return new PlaylistResponseDto(playlist)
     }
 
@@ -62,7 +69,8 @@ export class PlaylistContentService {
     async changeContentInPlaylist(
         playlistId: string, 
         contentOrder: number, 
-        data: PlaylistContentRequestDto
+        data: PlaylistContentRequestDto,
+        file: Express.Multer.File
     ): Promise<PlaylistResponseDto> {
         const playlist = await this.getPlaylistWithContent(playlistId)
         let { content } = playlist;
@@ -70,8 +78,8 @@ export class PlaylistContentService {
             throw new NotFoundException('content not found')
         }
 
-        if (data.link) {
-            content[contentOrder].content = await this.getContent(data.link)
+        if (file) {
+            content[contentOrder].content = await this.createContent(file)
             this.playlistContentRepo.save(content[contentOrder])
         }
 
@@ -126,7 +134,20 @@ export class PlaylistContentService {
         if (!isDataValid) {
             throw new BadRequestException
         }
+
+        const deletedContent = content[contentOrder].content
         await this.playlistContentRepo.delete(content[contentOrder])
+
+        const isContentUsed = await this.playlistContentRepo.findOne({
+            where: {
+                contentId: deletedContent.id
+            }
+        }) != undefined
+
+        if (!isContentUsed) {
+            this.bucketService.delete(deletedContent, ContentEntity)
+        }
+
         content.splice(contentOrder, 1)
         for (let index = contentOrder; index < content.length; index++) {
             content[index].order--;
@@ -137,21 +158,12 @@ export class PlaylistContentService {
         return new PlaylistResponseDto(playlist)
     }
 
-    private async getContent(link: string): Promise<ContentEntity> {
-        let content = await this.contentRepo.findOne({
-            where: {
-                link: link
-            }
-        })
-
+    private async createContent(file: Express.Multer.File): Promise<ContentEntity> {
+        const content = await this.bucketService.upload(file.buffer, file.originalname, ContentEntity) as ContentEntity
         if (content) {
             return content
         }
-
-        content = new ContentEntity(link)
-        content = await this.contentRepo.save(content)
-
-        return content
+        throw new BadGatewayException('file is not uploaded to the bucket')
     }
 
     private async getPlaylistWithContent(id: string): Promise<PlaylistEntity> {

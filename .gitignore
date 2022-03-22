@@ -38,3 +38,5 @@ src/config.ts
 ormconfig.env
 
 auth.env
+
+s3.env

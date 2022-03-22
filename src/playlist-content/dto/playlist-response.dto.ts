@@ -21,8 +21,10 @@ export class PlaylistResponseDto {
         this.name = playlist.name
         this.userId = playlist.userId
         this.content = []
-        playlist.content.map(element => {
-            this.content.push(new ContentResponseDto(element))
-        })
+        if (playlist.content) {
+            playlist.content.map(element => {
+                this.content.push(new ContentResponseDto(element))
+            })
+        }
     }
 }

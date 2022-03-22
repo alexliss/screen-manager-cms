@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, ParseUUIDPipe, Patch, Post, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, ParseUUIDPipe, Patch, Post, UnauthorizedException, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { User } from 'src/auth/user.decorator';
 import { UserPropertyGuard } from 'src/user-property.guard';
@@ -10,8 +10,9 @@ import { PlaylistResponseDto } from './dto/playlist-response.dto';
 import { PlaylistContentService } from './playlist-content.service';
 import { PlaylistEntity } from './entity/playlist.entity';
 import { PlaylistContentRequestDto } from './dto/playlist-content-request.dto';
-import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { ApiException } from '@nanogiants/nestjs-swagger-api-exception-decorator';
+import { FileInterceptor, MulterModule } from '@nestjs/platform-express';
 
 @ApiTags('playlist-content')
 @ApiBearerAuth('user-token')
@@ -32,14 +33,17 @@ export class PlaylistContentController {
 
     @UseGuards(new UserPropertyGuard(PlaylistEntity))
     @Post('playlist/:id')
+    @UseInterceptors(FileInterceptor('file'))
+    @ApiConsumes('multipart/form-data')
     @ApiException(() => [UnauthorizedException, BadRequestException, NotFoundException])
     @ApiOkResponse({type: PlaylistResponseDto})
     async addContentToPlaylist(
         @User() user: UserEntity,
         @Param('id', ParseUUIDPipe) id: string,
+        @UploadedFile() file: Express.Multer.File,
         @Body() data: ContentRequestDto
     ): Promise<PlaylistResponseDto> {
-        return await this.service.addContentInPlaylist(id, data)
+        return await this.service.addContentInPlaylist(id, data, file)
     }
 
     @Get('playlist')
@@ -68,15 +72,18 @@ export class PlaylistContentController {
     }
 
     @UseGuards(new UserPropertyGuard(PlaylistEntity))
+    @UseInterceptors(FileInterceptor('file'))
+    @ApiConsumes('multipart/form-data')
     @ApiException(() => [UnauthorizedException, BadRequestException, NotFoundException])
     @ApiOkResponse({type: PlaylistResponseDto})
     @Patch('playlist/:id/:contentOrder')
     async changeContentInPlaylist(
         @Param('id', ParseUUIDPipe) playlistId: string,
         @Param('contentOrder', ParseIntPipe) contentOrder: number,
-        @Body() data: PlaylistContentRequestDto
+        @Body() data: PlaylistContentRequestDto,
+        @UploadedFile() file: Express.Multer.File
     ): Promise<PlaylistResponseDto> {
-        return await this.service.changeContentInPlaylist(playlistId, contentOrder, data)
+        return await this.service.changeContentInPlaylist(playlistId, contentOrder, data, file)
     }
 
     @UseGuards(new UserPropertyGuard(PlaylistEntity))

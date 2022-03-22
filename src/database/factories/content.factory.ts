@@ -3,5 +3,5 @@ import { ContentEntity } from "src/playlist-content/entity/content.entity";
 import { define } from "typeorm-seeding";
 
 define(ContentEntity, () => {
-    return new ContentEntity(faker.internet.url())
+    return null
 })

@@ -5,9 +5,13 @@ import { PlaylistContentController } from './playlist-content.controller';
 import { PlaylistContentEntity } from './entity/playlist-content.entity';
 import { PlaylistContentService } from './playlist-content.service';
 import { PlaylistEntity } from './entity/playlist.entity';
+import { BucketModule } from 'src/bucket/bucket.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([PlaylistEntity, ContentEntity, PlaylistContentEntity])],
+    imports: [
+        TypeOrmModule.forFeature([PlaylistEntity, ContentEntity, PlaylistContentEntity]),
+        BucketModule
+    ],
     providers: [PlaylistContentService],
     controllers: [PlaylistContentController],
     exports: []
