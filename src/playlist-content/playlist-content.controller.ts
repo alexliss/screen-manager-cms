@@ -12,7 +12,13 @@ import { PlaylistEntity } from './entity/playlist.entity';
 import { PlaylistContentRequestDto } from './dto/playlist-content-request.dto';
 import { ApiBearerAuth, ApiConsumes, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { ApiException } from '@nanogiants/nestjs-swagger-api-exception-decorator';
-import { FileInterceptor, MulterModule } from '@nestjs/platform-express';
+import { FileInterceptor } from '@nestjs/platform-express';
+
+const whitelist = [
+    'image/png',
+    'image/jpeg',
+    'image/jpg'
+]
 
 @ApiTags('playlist-content')
 @ApiBearerAuth('user-token')
@@ -33,7 +39,15 @@ export class PlaylistContentController {
 
     @UseGuards(new UserPropertyGuard(PlaylistEntity))
     @Post('playlist/:id')
-    @UseInterceptors(FileInterceptor('file'))
+    @UseInterceptors(FileInterceptor('file', {
+        fileFilter: (req, file, cb) => {
+            if (!whitelist.includes(file.mimetype)) {
+              return cb(new Error('file is not allowed'), false)
+            }
+        
+            cb(null, true)
+        }
+    }))
     @ApiConsumes('multipart/form-data')
     @ApiException(() => [UnauthorizedException, BadRequestException, NotFoundException])
     @ApiOkResponse({type: PlaylistResponseDto})
@@ -72,7 +86,15 @@ export class PlaylistContentController {
     }
 
     @UseGuards(new UserPropertyGuard(PlaylistEntity))
-    @UseInterceptors(FileInterceptor('file'))
+    @UseInterceptors(FileInterceptor('file', {
+        fileFilter: (req, file, cb) => {
+            if (!whitelist.includes(file.mimetype)) {
+              return cb(new Error('file is not allowed'), false)
+            }
+        
+            cb(null, true)
+        }
+    }))
     @ApiConsumes('multipart/form-data')
     @ApiException(() => [UnauthorizedException, BadRequestException, NotFoundException])
     @ApiOkResponse({type: PlaylistResponseDto})

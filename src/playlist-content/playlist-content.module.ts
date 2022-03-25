@@ -6,14 +6,16 @@ import { PlaylistContentEntity } from './entity/playlist-content.entity';
 import { PlaylistContentService } from './playlist-content.service';
 import { PlaylistEntity } from './entity/playlist.entity';
 import { BucketModule } from 'src/bucket/bucket.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([PlaylistEntity, ContentEntity, PlaylistContentEntity]),
-        BucketModule
+        BucketModule,
+        ConfigModule.forRoot({ envFilePath: ["s3.env"] })
     ],
     providers: [PlaylistContentService],
     controllers: [PlaylistContentController],
-    exports: []
+    exports: [PlaylistContentService]
 })
 export class PlaylistContentModule {}

@@ -11,6 +11,7 @@ import { PlaylistContentEntity } from './entity/playlist-content.entity';
 import { PlaylistEntity } from './entity/playlist.entity';
 import { PlaylistContentRequestDto } from './dto/playlist-content-request.dto';
 import { BucketService } from 'src/bucket/bucket.service';
+import { AllowedResolutions } from 'src/screen/screen.entity';
 
 @Injectable()
 export class PlaylistContentService {
@@ -155,6 +156,16 @@ export class PlaylistContentService {
         content = await this.playlistContentRepo.save(content)
         playlist.content = content
 
+        return new PlaylistResponseDto(playlist)
+    }
+
+    async getPlaylistWithResolution(id: string, resolution: AllowedResolutions): Promise<PlaylistResponseDto> {
+        const playlist = await this.getPlaylistWithContent(id)
+        let { content } = playlist
+        content.forEach(element => {
+            element.content.link = `${process.env.S3_RESIZE_ENDPOINT}/${resolution}/${element.content.key}`
+        });
+        playlist.content = content
         return new PlaylistResponseDto(playlist)
     }
 
